@@ -6,6 +6,7 @@ use Database\Factories\UtilisateurFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Modèle Eloquent : Utilisateur
@@ -26,7 +27,7 @@ use Illuminate\Notifications\Notifiable;
 class Utilisateur extends Authenticatable
 {
     /** @use HasFactory<UtilisateurFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     // Nom de la table en base (override du défaut Laravel "utilisateurs" est déjà correct,
     // mais on le déclare explicitement pour la lisibilité)
