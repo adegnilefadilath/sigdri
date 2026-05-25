@@ -19,7 +19,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string      $prenom
  * @property string      $email
  * @property string      $mot_de_passe
- * @property string      $role           super_admin|admin|inspecteur|declarant
+ * @property string      $role           super_admin|admin|inspecteur|declarant|industriel
+ * @property int|null    $unite_industrielle_id
  * @property bool        $actif
  * @property \Carbon\Carbon|null $derniere_connexion
  * @property \Carbon\Carbon|null $email_verifie_le
@@ -45,6 +46,7 @@ class Utilisateur extends Authenticatable
         'email',
         'mot_de_passe',
         'role',
+        'unite_industrielle_id',
         'actif',
         'derniere_connexion',
     ];
@@ -124,5 +126,28 @@ class Utilisateur extends Authenticatable
     public function journaux(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Journal::class, 'utilisateur_id');
+    }
+
+    /**
+     * Unité industrielle gérée par ce compte (rôle industriel uniquement).
+     */
+    public function uniteIndustrielle(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\stdClass::class, 'unite_industrielle_id');
+        // Remplacer stdClass par le modèle UniteIndustrielle quand il sera créé
+    }
+
+    // ─── Helpers de rôle ─────────────────────────────────────────────────────
+
+    /** Vérifie si l'utilisateur est un industriel. */
+    public function estIndustriel(): bool
+    {
+        return $this->role === 'industriel';
+    }
+
+    /** Vérifie si l'utilisateur est un administrateur (admin ou super_admin). */
+    public function estAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
     }
 }

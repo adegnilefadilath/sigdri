@@ -16,5 +16,9 @@ class DatabaseSeeder extends Seeder
     {
         // Compte super-administrateur par défaut (admin@sigdri.bj)
         $this->call(AdminSeeder::class);
+
+        // Données de test pour l'espace industriel
+        // Crée une unité, un compte industriel et un agrément de démonstration
+        $this->call(IndustrielSeeder::class);
     }
 }
