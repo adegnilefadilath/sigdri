@@ -3,10 +3,12 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
-use App\Http\Controllers\Admin\AgrementController as AdminAgrementController;
-use App\Http\Controllers\Industriel\AuthController       as IndustrielAuthController;
-use App\Http\Controllers\Industriel\DashboardController  as IndustrielDashboardController;
-use App\Http\Controllers\Industriel\AgrementController   as IndustrielAgrementController;
+use App\Http\Controllers\Admin\AgrementController          as AdminAgrementController;
+use App\Http\Controllers\Admin\DeclarationsController      as AdminDeclarationsController;
+use App\Http\Controllers\Industriel\AuthController         as IndustrielAuthController;
+use App\Http\Controllers\Industriel\DashboardController    as IndustrielDashboardController;
+use App\Http\Controllers\Industriel\AgrementController     as IndustrielAgrementController;
+use App\Http\Controllers\Industriel\DeclarationsController as IndustrielDeclarationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 | Routes Web — SIGDRI
 |--------------------------------------------------------------------------
 | Les routes publiques (login) ne passent pas par AdminAuth.
-| Les routes protégées utilisent le middleware 'admin.auth' (alias déclaré
-| dans bootstrap/app.php).
+| Les routes protégées utilisent le middleware 'admin.auth' ou 'industriel.auth'
+| (alias déclarés dans bootstrap/app.php).
 */
 
 // ── Racine : redirige vers /login ───────────────────────────────────────────
@@ -47,22 +49,39 @@ Route::middleware('admin.auth')->group(function () {
         Route::resource('unites', UnitesIndustriellesController::class);
 
         // ── Agréments (CRUD + actions métier) ───────────────────────────────
-        // destroy() exclu : les agréments ne sont jamais supprimés, seulement suspendus/révoqués
         Route::resource('agrements', AdminAgrementController::class)->except(['destroy']);
+        Route::post('agrements/{agrement}/suspendre',
+            [AdminAgrementController::class, 'suspendre'])->name('agrements.suspendre');
+        Route::post('agrements/{agrement}/reactiver',
+            [AdminAgrementController::class, 'reactiver'])->name('agrements.reactiver');
 
-        // Suspension avec motif obligatoire
-        Route::post('agrements/{agrement}/suspendre', [AdminAgrementController::class, 'suspendre'])
-             ->name('agrements.suspendre');
+        // ════════════════════════════════════════════════════════════════════
+        // MODULE 3 — Déclarations industrielles
+        // ════════════════════════════════════════════════════════════════════
 
-        // Réactivation d'un agrément suspendu
-        Route::post('agrements/{agrement}/reactiver', [AdminAgrementController::class, 'reactiver'])
-             ->name('agrements.reactiver');
+        // ── Déclarations : lecture + actions métier (pas de create/edit côté admin)
+
+        // Export CSV — doit être déclaré AVANT le resource pour éviter que
+        // "exporter" soit capturé comme {declaration} par la route show.
+        Route::get('declarations/exporter',
+            [AdminDeclarationsController::class, 'exporter'])->name('declarations.exporter');
+
+        Route::resource('declarations', AdminDeclarationsController::class)
+             ->only(['index', 'show']);
+
+        // Validation d'une déclaration soumise
+        Route::post('declarations/{declaration}/valider',
+            [AdminDeclarationsController::class, 'valider'])->name('declarations.valider');
+
+        // Rejet avec motif obligatoire
+        Route::post('declarations/{declaration}/rejeter',
+            [AdminDeclarationsController::class, 'rejeter'])->name('declarations.rejeter');
+
     });
 });
 
 // ════════════════════════════════════════════════════════════════════════════
 // ESPACE INDUSTRIEL — préfixe /industriel
-// Séparé de l'espace admin pour cloisonner les accès et les vues
 // ════════════════════════════════════════════════════════════════════════════
 Route::prefix('industriel')->name('industriel.')->group(function () {
 
@@ -70,7 +89,6 @@ Route::prefix('industriel')->name('industriel.')->group(function () {
     Route::get('/login',  [IndustrielAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [IndustrielAuthController::class, 'login'])->name('login.submit');
 
-    // ── Déconnexion (nécessite d'être authentifié) ───────────────────────────
     Route::post('/logout', [IndustrielAuthController::class, 'logout'])
          ->middleware('industriel.auth')
          ->name('logout');
@@ -85,5 +103,10 @@ Route::prefix('industriel')->name('industriel.')->group(function () {
         // Mon agrément (lecture seule)
         Route::get('/agrement', [IndustrielAgrementController::class, 'show'])
              ->name('agrement.show');
+
+        // ── MODULE 3 — Déclarations (vue industriel) ─────────────────────────
+        // CRUD standard + correction des déclarations rejetées
+        Route::resource('declarations', IndustrielDeclarationsController::class)
+             ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
     });
 });
