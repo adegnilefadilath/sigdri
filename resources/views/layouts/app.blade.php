@@ -74,9 +74,10 @@
             </a>
 
             {{-- Unités industrielles --}}
-            <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 hover:bg-white/10"
-               style="color: rgba(255,255,255,0.75);">
+            <a href="{{ route('admin.unites.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                      {{ request()->routeIs('admin.unites.*') ? 'text-white shadow-md' : 'hover:bg-white/10' }}"
+               style="{{ request()->routeIs('admin.unites.*') ? 'background-color: #F97316;' : 'color: rgba(255,255,255,0.75);' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -96,9 +97,10 @@
             </a>
 
             {{-- Agréments --}}
-            <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 hover:bg-white/10"
-               style="color: rgba(255,255,255,0.75);">
+            <a href="{{ route('admin.agrements.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                      {{ request()->routeIs('admin.agrements.*') ? 'text-white shadow-md' : 'hover:bg-white/10' }}"
+               style="{{ request()->routeIs('admin.agrements.*') ? 'background-color: #F97316;' : 'color: rgba(255,255,255,0.75);' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -266,12 +268,24 @@
 
         {{-- ── Contenu scrollable ────────────────────────────────────────── --}}
         <main class="flex-1 overflow-y-auto p-6">
+            {{-- Flash succès --}}
             @if (session('statut'))
                 <div class="mb-4 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
                     {{ session('statut') }}
+                </div>
+            @endif
+
+            {{-- Flash erreur métier (redirect avec ->with('erreur', '...')) --}}
+            @if (session('erreur'))
+                <div class="mb-4 flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                    {{ session('erreur') }}
                 </div>
             @endif
 
