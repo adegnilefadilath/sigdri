@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ReportingController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
 use App\Http\Controllers\Admin\AgrementController          as AdminAgrementController;
 use App\Http\Controllers\Admin\DeclarationsController      as AdminDeclarationsController;
@@ -76,6 +77,21 @@ Route::middleware('admin.auth')->group(function () {
         // Rejet avec motif obligatoire
         Route::post('declarations/{declaration}/rejeter',
             [AdminDeclarationsController::class, 'rejeter'])->name('declarations.rejeter');
+
+        // ════════════════════════════════════════════════════════════════════
+        // MODULE 4 — Reporting et statistiques
+        // ════════════════════════════════════════════════════════════════════
+
+        // Page principale avec filtres et graphiques Chart.js
+        Route::get('reporting', [ReportingController::class, 'index'])->name('reporting.index');
+
+        // Endpoint JSON pour rechargement dynamique des graphiques
+        Route::get('reporting/statistiques', [ReportingController::class, 'statistiques'])->name('reporting.statistiques');
+
+        // Exports — déclarés avant tout éventuel sous-ressource pour éviter les conflits
+        Route::get('reporting/export-pdf',   [ReportingController::class, 'exportPDF'])->name('reporting.export-pdf');
+        Route::get('reporting/export-excel', [ReportingController::class, 'exportExcel'])->name('reporting.export-excel');
+
 
     });
 });
