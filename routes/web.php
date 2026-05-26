@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\AlertesController;
+use App\Http\Controllers\Admin\CartographieController;
 use App\Http\Controllers\Admin\ReportingController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
 use App\Http\Controllers\Admin\AgrementController          as AdminAgrementController;
@@ -92,6 +94,21 @@ Route::middleware('admin.auth')->group(function () {
         Route::get('reporting/export-pdf',   [ReportingController::class, 'exportPDF'])->name('reporting.export-pdf');
         Route::get('reporting/export-excel', [ReportingController::class, 'exportExcel'])->name('reporting.export-excel');
 
+        // ════════════════════════════════════════════════════════════════════
+        // MODULE 5 — Cartographie et alertes
+        // ════════════════════════════════════════════════════════════════════
+
+        // Carte Leaflet des unités industrielles géolocalisées
+        Route::get('cartographie',         [CartographieController::class, 'index'])->name('cartographie.index');
+
+        // Endpoint JSON consommé par Leaflet.js (GET pour caching navigateur)
+        Route::get('cartographie/donnees', [CartographieController::class, 'donnees'])->name('cartographie.donnees');
+
+        // Alertes actives : agréments expirant, expirés, déclarations en attente
+        Route::get('alertes', [AlertesController::class, 'index'])->name('alertes.index');
+
+        // Marquage d'une alerte comme traitée (POST pour éviter le double-clic via refresh)
+        Route::post('alertes/{id}/traiter', [AlertesController::class, 'marquerTraitee'])->name('alertes.traiter');
 
     });
 });
