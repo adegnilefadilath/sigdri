@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,6 +20,8 @@ use Illuminate\View\View;
  */
 class DeclarationsController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
+
     // ── Liste avec filtres (mois, année, statut, département, secteur) ─────────
     public function index(Request $request): View
     {
@@ -140,8 +143,12 @@ class DeclarationsController extends Controller
             return back()->with('erreur', 'Cette déclaration ne peut pas être validée dans son état actuel.');
         }
 
-        $this->journaliser('validation', 'declarations', $declaration,
-            ['statut' => $d->statut], ['statut' => 'validee']);
+        $this->journal->log('validation', "Validation de la déclaration {$d->numero_declaration}", null, [
+            'table' => 'declarations',
+            'id'    => $declaration,
+            'avant' => ['statut' => $d->statut],
+            'apres' => ['statut' => 'validee'],
+        ]);
 
         DB::table('declarations')->where('id', $declaration)->update([
             'statut'          => 'validee',
@@ -172,8 +179,12 @@ class DeclarationsController extends Controller
             'motif_rejet.min'      => 'Le motif doit comporter au moins 10 caractères.',
         ]);
 
-        $this->journaliser('rejet', 'declarations', $declaration,
-            ['statut' => $d->statut], ['statut' => 'rejetee', 'motif_rejet' => $request->motif_rejet]);
+        $this->journal->log('rejet', "Rejet de la déclaration {$d->numero_declaration}", null, [
+            'table' => 'declarations',
+            'id'    => $declaration,
+            'avant' => ['statut' => $d->statut],
+            'apres' => ['statut' => 'rejetee', 'motif_rejet' => $request->motif_rejet],
+        ]);
 
         DB::table('declarations')->where('id', $declaration)->update([
             'statut'          => 'rejetee',
@@ -253,19 +264,4 @@ class DeclarationsController extends Controller
                 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'][$mois] ?? '?';
     }
 
-    // ── Écriture dans le journal d'audit ─────────────────────────────────────
-    private function journaliser(string $action, string $table, int $id, ?array $avant, ?array $apres): void
-    {
-        DB::table('journaux')->insert([
-            'utilisateur_id'    => Auth::id(),
-            'action'            => $action,
-            'table_concernee'   => $table,
-            'enregistrement_id' => $id,
-            'anciennes_valeurs' => $avant ? json_encode($avant) : null,
-            'nouvelles_valeurs' => $apres ? json_encode($apres) : null,
-            'ip_address'        => request()->ip(),
-            'user_agent'        => request()->userAgent(),
-            'created_at'        => now(),
-        ]);
-    }
 }

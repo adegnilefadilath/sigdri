@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,8 @@ use Illuminate\View\View;
  */
 class AgrementController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
+
     // ── Liste avec filtres et compteurs ────────────────────────────────────
     public function index(Request $request): View
     {
@@ -107,8 +110,11 @@ class AgrementController extends Controller
             'updated_at'      => now(),
         ]));
 
-        $this->journaliser('creation', 'agrements', $id, null,
-            array_merge($donnees, ['numero_agrement' => $numero, 'statut' => 'valide']));
+        $this->journal->log('creation', "Création de l'agrément {$numero}", null, [
+            'table' => 'agrements',
+            'id'    => $id,
+            'apres' => array_merge($donnees, ['numero_agrement' => $numero, 'statut' => 'valide']),
+        ]);
 
         return redirect()->route('admin.agrements.show', $id)
             ->with('statut', "Agrément $numero créé avec succès.");
@@ -181,7 +187,12 @@ class AgrementController extends Controller
             'statut.in'                      => 'Statut invalide.',
         ]);
 
-        $this->journaliser('modification', 'agrements', $agrement, (array) $a, $donnees);
+        $this->journal->log('modification', "Modification de l'agrément {$a->numero_agrement}", null, [
+            'table' => 'agrements',
+            'id'    => $agrement,
+            'avant' => (array) $a,
+            'apres' => $donnees,
+        ]);
 
         DB::table('agrements')
             ->where('id', $agrement)
@@ -209,10 +220,12 @@ class AgrementController extends Controller
             'motif.min'      => 'Le motif doit contenir au moins 10 caractères.',
         ]);
 
-        $this->journaliser('suspension', 'agrements', $agrement,
-            (array) $a,
-            ['statut' => 'suspendu', 'motif_suspension' => $request->motif]
-        );
+        $this->journal->log('suspension', "Suspension de l'agrément {$a->numero_agrement}", null, [
+            'table' => 'agrements',
+            'id'    => $agrement,
+            'avant' => (array) $a,
+            'apres' => ['statut' => 'suspendu', 'motif_suspension' => $request->motif],
+        ]);
 
         DB::table('agrements')
             ->where('id', $agrement)
@@ -233,7 +246,12 @@ class AgrementController extends Controller
                 ->with('erreur', 'Seul un agrément suspendu peut être réactivé.');
         }
 
-        $this->journaliser('reactivation', 'agrements', $agrement, (array) $a, ['statut' => 'valide']);
+        $this->journal->log('reactivation', "Réactivation de l'agrément {$a->numero_agrement}", null, [
+            'table' => 'agrements',
+            'id'    => $agrement,
+            'avant' => (array) $a,
+            'apres' => ['statut' => 'valide'],
+        ]);
 
         DB::table('agrements')
             ->where('id', $agrement)
@@ -255,24 +273,4 @@ class AgrementController extends Controller
         return 'AGR-' . $annee . '-' . str_pad($compteur + 1, 3, '0', STR_PAD_LEFT);
     }
 
-    // ── Écriture dans le journal d'audit ────────────────────────────────────
-    private function journaliser(
-        string $action,
-        string $table,
-        int    $id,
-        ?array $avant,
-        ?array $apres
-    ): void {
-        DB::table('journaux')->insert([
-            'utilisateur_id'    => Auth::id(),
-            'action'            => $action,
-            'table_concernee'   => $table,
-            'enregistrement_id' => $id,
-            'anciennes_valeurs' => $avant ? json_encode($avant) : null,
-            'nouvelles_valeurs' => $apres ? json_encode($apres) : null,
-            'ip_address'        => request()->ip(),
-            'user_agent'        => request()->userAgent(),
-            'created_at'        => now(),
-        ]);
-    }
 }

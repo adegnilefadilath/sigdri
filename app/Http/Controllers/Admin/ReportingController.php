@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ use Illuminate\View\View;
  */
 class ReportingController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
+
     // ── Page principale avec stats + graphiques ───────────────────────────────
     public function index(Request $request): View
     {
@@ -78,6 +81,8 @@ class ReportingController extends Controller
             'declarations', 'stats', 'parSecteur', 'filtres', 'genereeLe'
         ));
         $pdf->setPaper('A4', 'landscape');
+
+        $this->journal->log('rapport_pdf', 'Génération du rapport PDF de statistiques');
 
         return $pdf->download('rapport-sigdri-' . date('Y-m-d') . '.pdf');
     }
@@ -144,6 +149,8 @@ class ReportingController extends Controller
                 'couleur'  => '#1A237E',
             ],
         ]);
+
+        $this->journal->log('rapport_excel', 'Export Excel des statistiques et déclarations');
 
         return response($xml, 200, [
             'Content-Type'        => 'application/vnd.ms-excel; charset=UTF-8',

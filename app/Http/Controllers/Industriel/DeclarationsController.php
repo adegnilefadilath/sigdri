@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Industriel;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,8 @@ use Illuminate\View\View;
  */
 class DeclarationsController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
+
     // ── Liste des déclarations de l'industriel connecté ──────────────────────
     public function index(): View
     {
@@ -195,8 +198,12 @@ class DeclarationsController extends Controller
             ]);
         }
 
-        $this->journaliser('creation', 'declarations', $id, null, [
-            'numero_declaration' => $numero, 'statut' => $statut,
+        $actionLabel = $statut === 'soumise' ? 'soumission' : 'creation';
+        $descLabel   = $statut === 'soumise' ? 'Soumission' : 'Enregistrement brouillon';
+        $this->journal->log($actionLabel, "{$descLabel} de la déclaration {$numero}", null, [
+            'table' => 'declarations',
+            'id'    => $id,
+            'apres' => ['numero_declaration' => $numero, 'statut' => $statut],
         ]);
 
         $msg = $statut === 'soumise'
@@ -349,8 +356,12 @@ class DeclarationsController extends Controller
             ]);
         }
 
-        $this->journaliser('correction', 'declarations', $declaration,
-            ['statut' => 'rejetee'], ['statut' => $statut]);
+        $this->journal->log('correction', "Correction de la déclaration {$d->numero_declaration}", null, [
+            'table' => 'declarations',
+            'id'    => $declaration,
+            'avant' => ['statut' => 'rejetee'],
+            'apres' => ['statut' => $statut],
+        ]);
 
         DB::table('declarations')->where('id', $declaration)->update([
             'statut'                 => $statut,
@@ -376,19 +387,4 @@ class DeclarationsController extends Controller
         return (float) str_replace(',', '.', (string) $val);
     }
 
-    // ── Écriture dans le journal d'audit ─────────────────────────────────────
-    private function journaliser(string $action, string $table, int $id, ?array $avant, ?array $apres): void
-    {
-        DB::table('journaux')->insert([
-            'utilisateur_id'    => Auth::id(),
-            'action'            => $action,
-            'table_concernee'   => $table,
-            'enregistrement_id' => $id,
-            'anciennes_valeurs' => $avant ? json_encode($avant) : null,
-            'nouvelles_valeurs' => $apres ? json_encode($apres) : null,
-            'ip_address'        => request()->ip(),
-            'user_agent'        => request()->userAgent(),
-            'created_at'        => now(),
-        ]);
-    }
 }

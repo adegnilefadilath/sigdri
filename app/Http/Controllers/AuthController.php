@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Utilisateur;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ use Illuminate\View\View;
  */
 class AuthController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
     /**
      * Affiche le formulaire de connexion.
      * Redirige vers le tableau de bord si l'utilisateur est déjà connecté.
@@ -89,6 +91,13 @@ class AuthController extends Controller
         // Horodatage de la connexion pour l'audit et le tableau de bord admin
         $utilisateur->update(['derniere_connexion' => now()]);
 
+        // Trace la connexion dans le journal d'audit
+        $this->journal->logAuth(
+            'connexion',
+            'Connexion de ' . $utilisateur->prenom . ' ' . $utilisateur->nom,
+            $utilisateur->id
+        );
+
         return redirect()->intended(route('dashboard'));
     }
 
@@ -104,6 +113,12 @@ class AuthController extends Controller
         $utilisateur = Auth::user();
 
         if ($utilisateur) {
+            // Trace la déconnexion avant de détruire la session
+            $this->journal->logAuth(
+                'deconnexion',
+                'Déconnexion de ' . $utilisateur->prenom . ' ' . $utilisateur->nom,
+                $utilisateur->id
+            );
             // Révocation de tous les tokens Sanctum de l'utilisateur
             $utilisateur->tokens()->delete();
         }

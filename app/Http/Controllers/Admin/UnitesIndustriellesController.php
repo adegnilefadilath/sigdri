@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
  */
 class UnitesIndustriellesController extends Controller
 {
+    public function __construct(private JournalService $journal) {}
     // ── Liste avec filtres et pagination ────────────────────────────────────
     public function index(Request $request): View
     {
@@ -95,9 +97,10 @@ class UnitesIndustriellesController extends Controller
             'updated_at'                => now(),
         ]);
 
-        $this->journaliser('creation', 'unites_industrielles', $id, null, [
-            'denomination'           => $request->denomination,
-            'numero_immatriculation' => $request->numero_immatriculation,
+        $this->journal->log('creation', "Création de l'unité « {$request->denomination} »", null, [
+            'table' => 'unites_industrielles',
+            'id'    => $id,
+            'apres' => ['denomination' => $request->denomination, 'numero_immatriculation' => $request->numero_immatriculation],
         ]);
 
         return redirect()->route('admin.unites.show', $id)
@@ -161,7 +164,12 @@ class UnitesIndustriellesController extends Controller
         ], $this->messagesValidation());
 
         // Capture de l'état avant modification pour le journal
-        $this->journaliser('modification', 'unites_industrielles', $unite, (array) $u, $donnees);
+        $this->journal->log('modification', "Modification de l'unité « {$u->denomination} »", null, [
+            'table' => 'unites_industrielles',
+            'id'    => $unite,
+            'avant' => (array) $u,
+            'apres' => $donnees,
+        ]);
 
         DB::table('unites_industrielles')
             ->where('id', $unite)
@@ -177,8 +185,12 @@ class UnitesIndustriellesController extends Controller
         $u = DB::table('unites_industrielles')->where('id', $unite)->first();
         abort_if(! $u, 404, 'Unité industrielle introuvable.');
 
-        $this->journaliser('desactivation', 'unites_industrielles', $unite,
-            (array) $u, ['actif' => false]);
+        $this->journal->log('desactivation', "Désactivation de l'unité « {$u->denomination} »", null, [
+            'table' => 'unites_industrielles',
+            'id'    => $unite,
+            'avant' => (array) $u,
+            'apres' => ['actif' => false],
+        ]);
 
         DB::table('unites_industrielles')
             ->where('id', $unite)
@@ -208,24 +220,4 @@ class UnitesIndustriellesController extends Controller
         ];
     }
 
-    // ── Écriture dans le journal d'audit ────────────────────────────────────
-    private function journaliser(
-        string $action,
-        string $table,
-        int    $id,
-        ?array $avant,
-        ?array $apres
-    ): void {
-        DB::table('journaux')->insert([
-            'utilisateur_id'    => Auth::id(),
-            'action'            => $action,
-            'table_concernee'   => $table,
-            'enregistrement_id' => $id,
-            'anciennes_valeurs' => $avant  ? json_encode($avant)  : null,
-            'nouvelles_valeurs' => $apres  ? json_encode($apres)  : null,
-            'ip_address'        => request()->ip(),
-            'user_agent'        => request()->userAgent(),
-            'created_at'        => now(),
-        ]);
-    }
 }

@@ -4,8 +4,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\AlertesController;
 use App\Http\Controllers\Admin\CartographieController;
+use App\Http\Controllers\Admin\JournauxController;
+use App\Http\Controllers\Admin\ParametresController;
 use App\Http\Controllers\Admin\ReportingController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
+use App\Http\Controllers\Admin\UtilisateursController;
 use App\Http\Controllers\Admin\AgrementController          as AdminAgrementController;
 use App\Http\Controllers\Admin\DeclarationsController      as AdminDeclarationsController;
 use App\Http\Controllers\Industriel\AuthController         as IndustrielAuthController;
@@ -110,6 +113,33 @@ Route::middleware('admin.auth')->group(function () {
         // Marquage d'une alerte comme traitée (POST pour éviter le double-clic via refresh)
         Route::post('alertes/{id}/traiter', [AlertesController::class, 'marquerTraitee'])->name('alertes.traiter');
 
+        // ════════════════════════════════════════════════════════════════════
+        // MODULE 6 — Gestion des utilisateurs et administration
+        // ════════════════════════════════════════════════════════════════════
+
+        // ── Utilisateurs (CRUD sans destroy — suppression physique interdite) ──
+        Route::resource('utilisateurs', UtilisateursController::class)->except(['destroy']);
+
+        // Actions métier sur un compte (POST pour éviter les requêtes GET indésirables)
+        Route::post('utilisateurs/{utilisateur}/toggle-statut',
+            [UtilisateursController::class, 'toggleStatut'])->name('utilisateurs.toggle-statut');
+        Route::post('utilisateurs/{utilisateur}/reset-password',
+            [UtilisateursController::class, 'resetPassword'])->name('utilisateurs.reset-password');
+
+        // ── Paramètres système (lecture + mise à jour) ───────────────────────
+        Route::get('parametres',  [ParametresController::class, 'index'])->name('parametres.index');
+        Route::post('parametres', [ParametresController::class, 'update'])->name('parametres.update');
+
+        // ════════════════════════════════════════════════════════════════════
+        // MODULE 7 — Journal d'audit
+        // ════════════════════════════════════════════════════════════════════
+
+        // Liste paginée des actions tracées (lecture seule)
+        Route::get('journaux', [JournauxController::class, 'index'])->name('journaux.index');
+
+        // Export PDF du journal filtré (500 lignes max)
+        Route::get('journaux/exporter', [JournauxController::class, 'exporter'])->name('journaux.exporter');
+
     });
 });
 
@@ -139,7 +169,11 @@ Route::prefix('industriel')->name('industriel.')->group(function () {
 
         // ── MODULE 3 — Déclarations (vue industriel) ─────────────────────────
         // CRUD standard + correction des déclarations rejetées
+        // La route store est protégée par le rate limiter (10 soumissions/heure)
         Route::resource('declarations', IndustrielDeclarationsController::class)
-             ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+             ->only(['index', 'create', 'show', 'edit', 'update']);
+        Route::post('declarations', [IndustrielDeclarationsController::class, 'store'])
+             ->middleware('rate.declarations')
+             ->name('declarations.store');
     });
 });
