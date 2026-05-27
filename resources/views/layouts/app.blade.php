@@ -90,9 +90,10 @@
             </a>
 
             {{-- Produits & Matières --}}
-            <a href="#"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 hover:bg-white/10"
-               style="color: rgba(255,255,255,0.75);">
+            <a href="{{ route('admin.produits.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                      {{ request()->routeIs('admin.produits.*') || request()->routeIs('admin.matieres.*') ? 'text-white shadow-md' : 'hover:bg-white/10' }}"
+               style="{{ request()->routeIs('admin.produits.*') || request()->routeIs('admin.matieres.*') ? 'background-color: #F97316;' : 'color: rgba(255,255,255,0.75);' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>

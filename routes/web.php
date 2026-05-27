@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\AlertesController;
 use App\Http\Controllers\Admin\CartographieController;
 use App\Http\Controllers\Admin\JournauxController;
+use App\Http\Controllers\Admin\MatieresPremiresController;
+use App\Http\Controllers\Admin\ProduitsController;
 use App\Http\Controllers\Admin\NotificationsController     as AdminNotificationsController;
 use App\Http\Controllers\Admin\ParametresController;
 use App\Http\Controllers\Admin\ProfilController            as AdminProfilController;
@@ -57,6 +59,13 @@ Route::middleware('admin.auth')->group(function () {
 
         // ── Unités industrielles (CRUD complet + désactivation) ──────────────
         Route::resource('unites', UnitesIndustriellesController::class);
+
+        // ── Produits (CRUD + désactivation) ──────────────────────────────────
+        Route::resource('produits', ProduitsController::class)->except(['show']);
+
+        // ── Matières premières (lecture seule — saisie via les déclarations) ─
+        Route::get('matieres', [MatieresPremiresController::class, 'index'])->name('matieres.index');
+        Route::get('matieres/{designation}', [MatieresPremiresController::class, 'show'])->name('matieres.show');
 
         // ── Agréments (CRUD + actions métier) ───────────────────────────────
         Route::resource('agrements', AdminAgrementController::class)->except(['destroy']);

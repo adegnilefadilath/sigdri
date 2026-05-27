@@ -20,5 +20,8 @@ class DatabaseSeeder extends Seeder
         // Données de test pour l'espace industriel
         // Crée une unité, un compte industriel et un agrément de démonstration
         $this->call(IndustrielSeeder::class);
+
+        // 10 produits industriels typiques du Bénin, rattachés à l'unité de démo
+        $this->call(ProduitsSeeder::class);
     }
 }
