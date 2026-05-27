@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SIGDRI — Espace Industriel — @yield('titre', 'Dashboard')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
@@ -122,6 +123,36 @@
                 Mon profil
             </a>
 
+            {{-- Section notifications --}}
+            <p class="px-3 pt-4 pb-2 text-xs font-bold uppercase tracking-widest"
+               style="color: rgba(255,255,255,0.35);">Alertes</p>
+
+            {{-- Notifications --}}
+            <a href="{{ route('industriel.notifications.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                      {{ request()->routeIs('industriel.notifications.*') ? 'text-white shadow-md' : 'hover:bg-white/10' }}"
+               style="{{ request()->routeIs('industriel.notifications.*') ? 'background-color: #F97316;' : 'color: rgba(255,255,255,0.75);' }}">
+                <span class="relative shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    @if ($notifNonLues > 0)
+                    <span class="absolute -top-1 -right-1 w-3.5 h-3.5 flex items-center justify-center rounded-full text-white font-black"
+                          style="font-size:8px; background-color:#ef4444;">
+                        {{ $notifNonLues > 9 ? '9+' : $notifNonLues }}
+                    </span>
+                    @endif
+                </span>
+                Notifications
+                @if ($notifNonLues > 0)
+                <span class="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full"
+                      style="background: rgba(239,68,68,0.2); color: #fca5a5;">
+                    {{ $notifNonLues }}
+                </span>
+                @endif
+            </a>
+
         </nav>
 
         {{-- ── Déconnexion en bas de sidebar ──────────────────────────────── --}}
@@ -160,8 +191,98 @@
                     </p>
                 </div>
 
-                {{-- Nom de l'industriel + unité --}}
+                {{-- Cloche notifications + nom de l'industriel + unité --}}
                 <div class="flex items-center gap-3">
+
+                    {{-- ── Cloche avec dropdown ─────────────────────────────── --}}
+                    <div class="relative" id="notif-wrapper">
+                        <button id="notif-btn"
+                                onclick="toggleNotifDropdown()"
+                                class="relative p-2 rounded-lg transition-colors hover:bg-gray-100"
+                                aria-label="Notifications">
+                            {{-- Icône cloche --}}
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            {{-- Badge compteur --}}
+                            @if ($notifNonLues > 0)
+                            <span class="absolute top-1 right-1 min-w-[16px] h-4 px-0.5 flex items-center justify-center rounded-full text-white font-bold"
+                                  style="font-size:10px; background-color:#ef4444;">
+                                {{ $notifNonLues > 9 ? '9+' : $notifNonLues }}
+                            </span>
+                            @endif
+                        </button>
+
+                        {{-- ── Dropdown notifications ──────────────────────── --}}
+                        <div id="notif-dropdown"
+                             class="hidden absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+
+                            {{-- En-tête du dropdown --}}
+                            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                <span class="text-sm font-bold text-gray-800">Notifications</span>
+                                @if ($notifNonLues > 0)
+                                <form method="POST" action="{{ route('industriel.notifications.toutes-lues') }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="text-xs font-medium transition-colors"
+                                            style="color: #1a237e;">
+                                        Tout marquer lu
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+
+                            {{-- Liste des 5 dernières notifs --}}
+                            <ul class="divide-y divide-gray-50 max-h-72 overflow-y-auto">
+                                @forelse ($notifRecentes as $notif)
+                                <li class="px-4 py-3 transition-colors hover:bg-gray-50 {{ $notif->lu ? '' : 'bg-blue-50/60' }}">
+                                    <div class="flex items-start gap-3">
+                                        {{-- Point indicateur non-lu --}}
+                                        <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 {{ $notif->lu ? 'bg-gray-200' : 'bg-blue-500' }}"></span>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-semibold text-gray-800 truncate">{{ $notif->titre }}</p>
+                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ $notif->message }}</p>
+                                            <p class="text-[10px] text-gray-400 mt-1">
+                                                {{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                        {{-- Marquer comme lue --}}
+                                        @if (! $notif->lu)
+                                        <form method="POST" action="{{ route('industriel.notifications.lue', $notif->id) }}" class="shrink-0">
+                                            @csrf
+                                            <button type="submit"
+                                                    title="Marquer comme lue"
+                                                    class="text-gray-300 hover:text-blue-500 transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        @endif
+                                    </div>
+                                </li>
+                                @empty
+                                <li class="px-4 py-6 text-center text-xs text-gray-400">
+                                    Aucune notification
+                                </li>
+                                @endforelse
+                            </ul>
+
+                            {{-- Lien "Voir tout" --}}
+                            <div class="border-t border-gray-100">
+                                <a href="{{ route('industriel.notifications.index') }}"
+                                   class="flex items-center justify-center gap-1.5 py-3 text-xs font-semibold transition-colors hover:bg-gray-50"
+                                   style="color: #1a237e;">
+                                    Voir toutes les notifications
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>{{-- /notif-wrapper --}}
+
                     <div class="text-right hidden sm:block">
                         <p class="text-sm font-semibold text-gray-800">
                             {{ Auth::user()->prenom }} {{ Auth::user()->nom }}
@@ -199,5 +320,20 @@
 </div>
 
 @stack('scripts')
+
+{{-- ── Gestion du dropdown notifications ──────────────────────────────────── --}}
+<script>
+function toggleNotifDropdown() {
+    document.getElementById('notif-dropdown').classList.toggle('hidden');
+}
+
+// Fermer le dropdown en cliquant en dehors
+document.addEventListener('click', function (e) {
+    var wrapper = document.getElementById('notif-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('notif-dropdown').classList.add('hidden');
+    }
+});
+</script>
 </body>
 </html>

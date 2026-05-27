@@ -15,12 +15,28 @@
            focus:outline-none focus:ring-1 focus:ring-[#1a237e] focus:border-[#1a237e] transition-colors';
 @endphp
 
-@if ($errors->any())
+{{-- Erreur doublon (déclaration déjà soumise pour ce mois) — bloc proéminent --}}
+@if ($errors->has('doublon'))
+<div class="mb-5 flex items-start gap-3 px-5 py-4 bg-red-50 border-2 border-red-300 rounded-xl text-sm text-red-800">
+    <svg class="w-5 h-5 shrink-0 mt-0.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+    </svg>
+    <div>
+        <p class="font-semibold mb-0.5">Déclaration déjà existante</p>
+        <p>{{ $errors->first('doublon') }}</p>
+    </div>
+</div>
+@endif
+
+{{-- Erreurs de validation des champs --}}
+@if ($errors->hasAny(['mois', 'annee', 'chiffre_affaires_total', 'observations']))
 <div class="mb-5 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
     <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
     </svg>
-    <ul class="list-disc list-inside space-y-0.5">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+    <ul class="list-disc list-inside space-y-0.5">
+        @foreach ($errors->except('doublon') as $e)<li>{{ $e }}</li>@endforeach
+    </ul>
 </div>
 @endif
 

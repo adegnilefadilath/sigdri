@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Industriel;
 
 use App\Http\Controllers\Controller;
 use App\Services\JournalService;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,10 @@ use Illuminate\View\View;
  */
 class DeclarationsController extends Controller
 {
-    public function __construct(private JournalService $journal) {}
+    public function __construct(
+        private JournalService $journal,
+        private NotificationService $notifications,
+    ) {}
 
     // ── Liste des déclarations de l'industriel connecté ──────────────────────
     public function index(): View
@@ -118,8 +122,17 @@ class DeclarationsController extends Controller
             ->exists();
 
         if ($doublon) {
-            return redirect()->route('industriel.declarations.index')
-                ->with('erreur', 'Une déclaration existe déjà pour ce mois.');
+            $nomsMois = ['','Janvier','Février','Mars','Avril','Mai','Juin',
+                         'Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+            $nomMois  = $nomsMois[(int) $request->mois] ?? 'ce mois';
+            $annee    = (int) $request->annee;
+
+            return redirect()->route('industriel.declarations.create')
+                ->withInput()
+                ->withErrors([
+                    'doublon' => "Une déclaration a déjà été soumise pour le mois de {$nomMois} {$annee}."
+                               . " Vous ne pouvez soumettre qu'une seule déclaration par mois.",
+                ]);
         }
 
         $action = $request->input('action', 'brouillon');
@@ -205,6 +218,15 @@ class DeclarationsController extends Controller
             'id'    => $id,
             'apres' => ['numero_declaration' => $numero, 'statut' => $statut],
         ]);
+
+        // Notification aux agents admin uniquement si la déclaration est soumise
+        if ($statut === 'soumise') {
+            $denomination = DB::table('unites_industrielles')
+                ->where('id', $uniteId)
+                ->value('denomination') ?? 'Unité industrielle';
+
+            $this->notifications->notifierNouvelleDeclaration($numero, $denomination);
+        }
 
         $msg = $statut === 'soumise'
             ? '« ' . $numero . ' » soumise avec succès. En attente de validation.'
@@ -372,6 +394,15 @@ class DeclarationsController extends Controller
             'observations'           => $request->observations,
             'updated_at'             => now(),
         ]);
+
+        // Notification aux agents admin lors d'une re-soumission après correction
+        if ($statut === 'soumise') {
+            $denomination = DB::table('unites_industrielles')
+                ->where('id', $uniteId)
+                ->value('denomination') ?? 'Unité industrielle';
+
+            $this->notifications->notifierNouvelleDeclaration($d->numero_declaration, $denomination);
+        }
 
         $msg = $statut === 'soumise'
             ? '« ' . $d->numero_declaration . ' » resoumise. En attente de validation.'

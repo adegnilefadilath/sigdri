@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
  * Crée :
  *  1. Une unité industrielle de test (SARL BENIN AGRO)
  *  2. Le compte utilisateur industriel lié à cette unité
- *     email : industriel@test.bj / mot de passe : Industriel1234
+ *     email : adegnilefadilath@gmail.com / mot de passe : Industriel1234
  *
  * ⚠ Ces données sont destinées au développement uniquement.
  */
@@ -51,14 +51,14 @@ class IndustrielSeeder extends Seeder
 
         // ── 2. Compte utilisateur industriel ─────────────────────────────────
         $utilisateurExiste = DB::table('utilisateurs')
-            ->where('email', 'industriel@test.bj')
+            ->where('email', 'adegnilefadilath@gmail.com')
             ->exists();
 
         if (! $utilisateurExiste) {
             DB::table('utilisateurs')->insert([
                 'nom'                    => 'Test',
                 'prenom'                 => 'Industriel',
-                'email'                  => 'industriel@test.bj',
+                'email'                  => 'adegnilefadilath@gmail.com',
                 // Le cast 'hashed' du modèle Utilisateur n'est pas actif ici
                 // (on utilise DB::table), donc on hash manuellement.
                 'mot_de_passe'           => bcrypt('Industriel1234'),
@@ -69,7 +69,7 @@ class IndustrielSeeder extends Seeder
                 'created_at'             => now(),
                 'updated_at'             => now(),
             ]);
-            $this->command->info('Industriel de test créé : industriel@test.bj / Industriel1234');
+            $this->command->info('Industriel de test créé : adegnilefadilath@gmail.com / Industriel1234');
         } else {
             $this->command->info('Industriel de test déjà présent — insertion ignorée.');
         }

@@ -5,16 +5,18 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\AlertesController;
 use App\Http\Controllers\Admin\CartographieController;
 use App\Http\Controllers\Admin\JournauxController;
+use App\Http\Controllers\Admin\NotificationsController     as AdminNotificationsController;
 use App\Http\Controllers\Admin\ParametresController;
 use App\Http\Controllers\Admin\ReportingController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
 use App\Http\Controllers\Admin\UtilisateursController;
 use App\Http\Controllers\Admin\AgrementController          as AdminAgrementController;
 use App\Http\Controllers\Admin\DeclarationsController      as AdminDeclarationsController;
-use App\Http\Controllers\Industriel\AuthController         as IndustrielAuthController;
-use App\Http\Controllers\Industriel\DashboardController    as IndustrielDashboardController;
-use App\Http\Controllers\Industriel\AgrementController     as IndustrielAgrementController;
-use App\Http\Controllers\Industriel\DeclarationsController as IndustrielDeclarationsController;
+use App\Http\Controllers\Industriel\AuthController            as IndustrielAuthController;
+use App\Http\Controllers\Industriel\DashboardController       as IndustrielDashboardController;
+use App\Http\Controllers\Industriel\AgrementController        as IndustrielAgrementController;
+use App\Http\Controllers\Industriel\DeclarationsController    as IndustrielDeclarationsController;
+use App\Http\Controllers\Industriel\NotificationsController   as IndustrielNotificationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -131,6 +133,24 @@ Route::middleware('admin.auth')->group(function () {
         Route::post('parametres', [ParametresController::class, 'update'])->name('parametres.update');
 
         // ════════════════════════════════════════════════════════════════════
+        // MODULE 8 — Notifications in-app (espace admin)
+        // ════════════════════════════════════════════════════════════════════
+
+        // Déclaré avant la route avec {id} pour éviter que "toutes-lues"
+        // soit capturé comme paramètre de marquerLue.
+        Route::post('notifications/toutes-lues',
+            [AdminNotificationsController::class, 'marquerToutesLues'])
+            ->name('notifications.toutes-lues');
+
+        Route::get('notifications',
+            [AdminNotificationsController::class, 'index'])
+            ->name('notifications.index');
+
+        Route::post('notifications/{id}/lue',
+            [AdminNotificationsController::class, 'marquerLue'])
+            ->name('notifications.lue');
+
+        // ════════════════════════════════════════════════════════════════════
         // MODULE 7 — Journal d'audit
         // ════════════════════════════════════════════════════════════════════
 
@@ -175,5 +195,20 @@ Route::prefix('industriel')->name('industriel.')->group(function () {
         Route::post('declarations', [IndustrielDeclarationsController::class, 'store'])
              ->middleware('rate.declarations')
              ->name('declarations.store');
+
+        // ── MODULE 8 — Notifications in-app ──────────────────────────────────
+        // Déclaré avant toutes-lues pour éviter que "toutes-lues" soit capturé
+        // comme {id} par la route marquerLue.
+        Route::post('notifications/toutes-lues',
+            [IndustrielNotificationsController::class, 'marquerToutesLues'])
+            ->name('notifications.toutes-lues');
+
+        Route::get('notifications',
+            [IndustrielNotificationsController::class, 'index'])
+            ->name('notifications.index');
+
+        Route::post('notifications/{id}/lue',
+            [IndustrielNotificationsController::class, 'marquerLue'])
+            ->name('notifications.lue');
     });
 });

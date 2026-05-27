@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\JournalService;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,7 +21,10 @@ use Illuminate\View\View;
  */
 class DeclarationsController extends Controller
 {
-    public function __construct(private JournalService $journal) {}
+    public function __construct(
+        private JournalService $journal,
+        private NotificationService $notifications,
+    ) {}
 
     // ── Liste avec filtres (mois, année, statut, département, secteur) ─────────
     public function index(Request $request): View
@@ -158,6 +162,12 @@ class DeclarationsController extends Controller
             'updated_at'      => now(),
         ]);
 
+        // Notification au déclarant (in-app + email)
+        $this->notifications->notifierDeclarationValidee(
+            $d->declarant_id,
+            $d->numero_declaration,
+        );
+
         return redirect()->route('admin.declarations.show', $declaration)
             ->with('statut', 'Déclaration « ' . $d->numero_declaration . ' » validée avec succès.');
     }
@@ -193,6 +203,13 @@ class DeclarationsController extends Controller
             'motif_rejet'     => $request->motif_rejet,
             'updated_at'      => now(),
         ]);
+
+        // Notification au déclarant (in-app + email)
+        $this->notifications->notifierDeclarationRejetee(
+            $d->declarant_id,
+            $d->numero_declaration,
+            $request->motif_rejet,
+        );
 
         return redirect()->route('admin.declarations.show', $declaration)
             ->with('statut', 'Déclaration « ' . $d->numero_declaration . ' » rejetée.');
