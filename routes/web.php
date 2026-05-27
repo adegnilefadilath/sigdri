@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CartographieController;
 use App\Http\Controllers\Admin\JournauxController;
 use App\Http\Controllers\Admin\NotificationsController     as AdminNotificationsController;
 use App\Http\Controllers\Admin\ParametresController;
+use App\Http\Controllers\Admin\ProfilController            as AdminProfilController;
 use App\Http\Controllers\Admin\ReportingController;
 use App\Http\Controllers\Admin\UnitesIndustriellesController;
 use App\Http\Controllers\Admin\UtilisateursController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Industriel\DashboardController       as IndustrielDashb
 use App\Http\Controllers\Industriel\AgrementController        as IndustrielAgrementController;
 use App\Http\Controllers\Industriel\DeclarationsController    as IndustrielDeclarationsController;
 use App\Http\Controllers\Industriel\NotificationsController   as IndustrielNotificationsController;
+use App\Http\Controllers\Industriel\ProfilController          as IndustrielProfilController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,6 +130,12 @@ Route::middleware('admin.auth')->group(function () {
         Route::post('utilisateurs/{utilisateur}/reset-password',
             [UtilisateursController::class, 'resetPassword'])->name('utilisateurs.reset-password');
 
+        // ── Profil de l'admin connecté ───────────────────────────────────────
+        // La route password est déclarée avant profil/update pour éviter tout conflit
+        Route::get('profil',           [AdminProfilController::class, 'index'])->name('profil.index');
+        Route::put('profil',           [AdminProfilController::class, 'update'])->name('profil.update');
+        Route::put('profil/password',  [AdminProfilController::class, 'updatePassword'])->name('profil.password');
+
         // ── Paramètres système (lecture + mise à jour) ───────────────────────
         Route::get('parametres',  [ParametresController::class, 'index'])->name('parametres.index');
         Route::post('parametres', [ParametresController::class, 'update'])->name('parametres.update');
@@ -199,6 +207,10 @@ Route::prefix('industriel')->name('industriel.')->group(function () {
         // ── MODULE 8 — Notifications in-app ──────────────────────────────────
         // Déclaré avant toutes-lues pour éviter que "toutes-lues" soit capturé
         // comme {id} par la route marquerLue.
+        // ── Profil de l'industriel connecté ─────────────────────────────────
+        Route::get('profil', [IndustrielProfilController::class, 'index'])->name('profil.index');
+        Route::put('profil', [IndustrielProfilController::class, 'update'])->name('profil.update');
+
         Route::post('notifications/toutes-lues',
             [IndustrielNotificationsController::class, 'marquerToutesLues'])
             ->name('notifications.toutes-lues');
