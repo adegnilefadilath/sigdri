@@ -5,191 +5,343 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion Industriel — SIGDRI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Reset minimal pour éviter tout débordement */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(160deg, #1a237e 0%, #283593 100%);
+            overflow-x: hidden;
+        }
+
+        /* ── Carte ── */
+        .carte {
+            width: 90%;
+            max-width: 400px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ── Champs de formulaire ── */
+        .champ-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .champ-icone {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            line-height: 0;
+            color: #9ca3af;
+        }
+        .champ-input {
+            width: 100%;
+            padding: 12px 12px 12px 38px;
+            font-size: 14px;
+            color: #111827;
+            background: #f9fafb;
+            border: 1.5px solid #d1d5db;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            -webkit-appearance: none;
+        }
+        .champ-input:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.12);
+            background: #fff;
+        }
+        .champ-input.erreur {
+            border-color: #f87171;
+            background: #fef2f2;
+        }
+        .champ-input.erreur:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+        }
+        /* Décalage droite pour le champ mot de passe (bouton œil) */
+        .champ-input.avec-oeil { padding-right: 44px; }
+
+        /* ── Bouton œil ── */
+        .btn-oeil {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #9ca3af;
+            line-height: 0;
+            transition: color 0.15s;
+        }
+        .btn-oeil:hover { color: #4b5563; }
+
+        /* ── Label ── */
+        .label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        /* ── Bouton principal ── */
+        .btn-connexion {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            background-color: #F97316;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+        }
+        .btn-connexion:hover  { opacity: 0.92; }
+        .btn-connexion:active { transform: scale(0.98); }
+        .btn-connexion:focus  { outline: 3px solid rgba(249,115,22,0.4); outline-offset: 2px; }
+
+        /* ── Alertes flash ── */
+        .alerte {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .alerte.succes {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+        .alerte.erreur {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        /* ── Checkbox ── */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #F97316;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* ── Séparateur ── */
+        .separateur {
+            border: none;
+            border-top: 1px solid #f3f4f6;
+            margin: 20px 0 0;
+        }
+    </style>
 </head>
+<body>
 
-{{-- Fond dégradé bleu identique à la page admin --}}
-<body class="min-h-screen flex items-center justify-center p-4"
-      style="background: linear-gradient(135deg, #0d1554 0%, #1a237e 45%, #1565c0 100%);">
+<div class="carte">
 
-<div class="w-full max-w-sm">
+    {{-- ── En-tête : SIGDRI + sous-titre ── --}}
+    <div style="text-align:center; margin-bottom:1.75rem;">
+        <p style="font-size:28px; font-weight:800; color:#F97316; letter-spacing:0.06em; line-height:1;">
+            SIGDRI
+        </p>
+        <p style="font-size:13px; color:#9ca3af; margin-top:4px; letter-spacing:0.03em;">
+            Espace Industriel
+        </p>
+    </div>
 
-    {{-- ── Carte principale ─────────────────────────────────────────────── --}}
-    <div class="rounded-2xl shadow-2xl overflow-hidden">
+    {{-- ── Titre du formulaire ── --}}
+    <div style="margin-bottom:1.5rem;">
+        <h1 style="font-size:22px; font-weight:700; color:#111827; line-height:1.2;">
+            Bon retour &#x1F44B;
+        </h1>
+        <p style="font-size:13px; color:#6b7280; margin-top:4px;">
+            Connectez-vous à votre espace
+        </p>
+    </div>
 
-        {{-- ── Header de la carte : logo + "Espace Industriel" ────────────── --}}
-        <div class="px-8 py-8 text-center" style="background-color: #1a237e;">
+    {{-- ── Flash déconnexion ── --}}
+    @if (session('statut'))
+    <div class="alerte succes">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;">
+            <path d="M5 13l4 4L19 7"/>
+        </svg>
+        <span>{{ session('statut') }}</span>
+    </div>
+    @endif
 
-            {{-- Icône usine dans un cercle orange --}}
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4"
-                 style="background-color: rgba(249,115,22,0.15); border: 2px solid rgba(249,115,22,0.4);">
-                <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none"
-                     stroke="#F97316" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 21h18M3 7v14M17 7v14M7 7v14M13 7v14"/>
-                    <path d="M3 7l4-4 3 4 3-4 4 4"/>
-                    <rect x="9" y="14" width="6" height="7"/>
-                    <rect x="5" y="10" width="2" height="3"/>
-                    <rect x="11" y="10" width="2" height="3"/>
-                    <rect x="17" y="10" width="2" height="3"/>
-                </svg>
+    {{-- ── Erreur de connexion ── --}}
+    @if ($errors->any())
+    <div class="alerte erreur">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="flex-shrink:0;margin-top:1px;">
+            <path d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        <span>{{ $errors->first() }}</span>
+    </div>
+    @endif
+
+    {{-- ── Formulaire ── --}}
+    <form method="POST" action="{{ route('industriel.login.submit') }}" novalidate>
+        @csrf
+
+        {{-- Numéro d'agrément --}}
+        <div style="margin-bottom:14px;">
+            <label for="numero_agrement" class="label">Numéro d'agrément</label>
+            <div class="champ-wrapper">
+                <span class="champ-icone">
+                    {{-- Icône bouclier 18 px — width/height explicites --}}
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </span>
+                <input type="text"
+                       id="numero_agrement"
+                       name="numero_agrement"
+                       value="{{ old('numero_agrement') }}"
+                       required
+                       autofocus
+                       autocomplete="off"
+                       placeholder="ex: AGR-2024-001"
+                       class="champ-input {{ $errors->has('numero_agrement') ? 'erreur' : '' }}">
             </div>
-
-            <h1 class="text-2xl font-black tracking-widest" style="color: #F97316;">SIGDRI</h1>
-            {{-- Différentiateur par rapport à la page admin --}}
-            <p class="text-xs mt-1 font-medium tracking-wide" style="color: rgba(255,255,255,0.65);">
-                Espace Industriel
-            </p>
-
         </div>
 
-        {{-- ── Formulaire ────────────────────────────────────────────────── --}}
-        <div class="bg-white px-8 py-7">
-
-            <div class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Bon retour&nbsp;&#x1F44B;</h2>
-                <p class="text-sm text-gray-500 mt-0.5">Connectez-vous à votre espace</p>
-            </div>
-
-            {{-- Flash déconnexion --}}
-            @if (session('statut'))
-                <div class="mb-4 flex items-center gap-2 px-3 py-2.5 bg-green-50 border border-green-200 text-green-700 rounded-lg text-xs">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        {{-- Mot de passe --}}
+        <div style="margin-bottom:16px;">
+            <label for="mot_de_passe" class="label">Mot de passe</label>
+            <div class="champ-wrapper">
+                <span class="champ-icone">
+                    {{-- Icône cadenas 18 px — width/height explicites --}}
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
                     </svg>
-                    {{ session('statut') }}
-                </div>
-            @endif
-
-            {{-- Erreur globale --}}
-            @if ($errors->any())
-                <div class="mb-4 flex items-start gap-2 px-3 py-2.5 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs">
-                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </span>
+                <input type="password"
+                       id="mot_de_passe"
+                       name="mot_de_passe"
+                       required
+                       autocomplete="current-password"
+                       placeholder="••••••••"
+                       class="champ-input avec-oeil {{ $errors->has('mot_de_passe') ? 'erreur' : '' }}">
+                {{-- Bouton afficher/masquer le mot de passe --}}
+                <button type="button"
+                        onclick="toggleMdp()"
+                        tabindex="-1"
+                        aria-label="Afficher ou masquer le mot de passe"
+                        class="btn-oeil">
+                    {{-- Œil ouvert (visible par défaut) --}}
+                    <svg id="icone-oeil-ouvert" width="18" height="18" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
-                    <span>{{ $errors->first() }}</span>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('industriel.login.submit') }}" novalidate>
-                @csrf
-
-                {{-- Numéro d'agrément --}}
-                <div class="mb-4">
-                    <label for="numero_agrement"
-                           class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                        Numéro d'agrément
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                        </span>
-                        <input type="text" id="numero_agrement" name="numero_agrement"
-                               value="{{ old('numero_agrement') }}"
-                               required autofocus autocomplete="off"
-                               placeholder="ex: AGR-2024-001"
-                               class="w-full pl-9 pr-4 py-2.5 text-sm rounded-lg border transition-colors
-                                      focus:outline-none focus:ring-2 focus:border-transparent
-                                      {{ $errors->has('numero_agrement') ? 'border-red-400 bg-red-50 focus:ring-red-400' : 'border-gray-300 bg-gray-50 focus:ring-[#1a237e]' }}">
-                    </div>
-                </div>
-
-                {{-- Mot de passe --}}
-                <div class="mb-5">
-                    <label for="mot_de_passe"
-                           class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                        Mot de passe
-                    </label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                            </svg>
-                        </span>
-                        <input type="password" id="mot_de_passe" name="mot_de_passe"
-                               required autocomplete="current-password"
-                               placeholder="••••••••"
-                               class="w-full pl-9 pr-10 py-2.5 text-sm rounded-lg border transition-colors
-                                      focus:outline-none focus:ring-2 focus:border-transparent
-                                      {{ $errors->has('mot_de_passe') ? 'border-red-400 bg-red-50 focus:ring-red-400' : 'border-gray-300 bg-gray-50 focus:ring-[#1a237e]' }}">
-                        {{-- Toggle œil --}}
-                        <button type="button" onclick="toggleMdp()" tabindex="-1"
-                                aria-label="Afficher ou masquer le mot de passe"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors">
-                            <svg id="icone-oeil-ouvert" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                            </svg>
-                            <svg id="icone-oeil-ferme" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Se souvenir de moi --}}
-                <div class="flex items-center mb-6">
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <input type="checkbox" name="se_souvenir" value="1"
-                               class="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400">
-                        <span class="text-xs text-gray-500">Se souvenir de moi</span>
-                    </label>
-                </div>
-
-                {{-- Bouton Se connecter (orange) --}}
-                <button type="submit"
-                        class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white text-sm font-bold shadow-lg transition-all duration-150
-                               hover:opacity-90 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400"
-                        style="background-color: #F97316;">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                    {{-- Œil barré (masqué par défaut) --}}
+                    <svg id="icone-oeil-ferme" width="18" height="18" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         viewBox="0 0 24 24" aria-hidden="true" style="display:none;">
+                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
                     </svg>
-                    Se connecter
                 </button>
-            </form>
-
-            {{-- Pied de carte --}}
-            <div class="mt-6 flex items-center justify-center gap-1.5 text-xs text-gray-400">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-                <span>Accès réservé aux agents autorisés</span>
             </div>
-
-            {{-- Lien vers l'espace admin (discret) --}}
-            <p class="text-center mt-4 text-xs text-gray-300">
-                <a href="{{ route('login') }}" class="hover:text-gray-500 transition-colors">
-                    → Espace administratif
-                </a>
-            </p>
         </div>
 
-    </div>{{-- /carte --}}
+        {{-- Se souvenir de moi --}}
+        <div style="margin-bottom:20px;">
+            <label class="checkbox-label">
+                <input type="checkbox" name="se_souvenir" value="1">
+                Se souvenir de moi
+            </label>
+        </div>
 
-    <p class="text-center mt-5 text-xs" style="color: rgba(255,255,255,0.35);">
-        SIGDRI &copy; {{ date('Y') }} — Espace Industriel
+        {{-- Bouton Se connecter --}}
+        <button type="submit" class="btn-connexion">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+                <polyline points="10 17 15 12 10 7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Se connecter
+        </button>
+
+    </form>
+
+    {{-- ── Pied de carte ── --}}
+    <hr class="separateur">
+    <p style="text-align:center; margin-top:14px; font-size:12px; color:#d1d5db;">
+        Accès réservé aux agents autorisés
+    </p>
+    <p style="text-align:center; margin-top:8px; font-size:12px; color:#e5e7eb;">
+        <a href="{{ route('login') }}"
+           style="color:#d1d5db; text-decoration:none; transition:color 0.15s;"
+           onmouseover="this.style.color='#6b7280'"
+           onmouseout="this.style.color='#d1d5db'">
+            → Espace administratif
+        </a>
     </p>
 
-</div>
+</div>{{-- /carte --}}
+
+{{-- Copyright sous la carte --}}
+<p style="position:fixed; bottom:16px; left:0; right:0; text-align:center;
+          font-size:11px; color:rgba(255,255,255,0.3); pointer-events:none;">
+    SIGDRI &copy; {{ date('Y') }} — Espace Industriel
+</p>
 
 <script>
     function toggleMdp() {
         const champ  = document.getElementById('mot_de_passe');
         const ouvert = document.getElementById('icone-oeil-ouvert');
         const ferme  = document.getElementById('icone-oeil-ferme');
+
         if (champ.type === 'password') {
-            champ.type = 'text';
-            ouvert.classList.add('hidden');
-            ferme.classList.remove('hidden');
+            champ.type        = 'text';
+            ouvert.style.display = 'none';
+            ferme.style.display  = 'inline';
         } else {
-            champ.type = 'password';
-            ouvert.classList.remove('hidden');
-            ferme.classList.add('hidden');
+            champ.type        = 'password';
+            ouvert.style.display = 'inline';
+            ferme.style.display  = 'none';
         }
     }
 </script>

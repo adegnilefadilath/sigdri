@@ -28,7 +28,7 @@
 {{-- ── Bannière rejet ────────────────────────────────────────────────────── --}}
 @if ($d->statut === 'rejetee')
 <div class="mb-5 flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
-    <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <svg width="20" height="20" style="flex-shrink:0" class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
     </svg>
     <div class="flex-1">
@@ -48,7 +48,7 @@
 {{-- ── Bannière validation ───────────────────────────────────────────────── --}}
 @if ($d->statut === 'validee')
 <div class="mb-5 flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
-    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <svg width="20" height="20" style="flex-shrink:0" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
     <p>
@@ -74,7 +74,8 @@
                     {{ $badgeTxt }}
                 </span>
             </div>
-            <dl class="grid grid-cols-2 gap-4 text-sm">
+            {{-- grid-cols-1 sur mobile (375px) pour éviter les colonnes trop étroites --}}
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                     <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Soumise le</dt>
                     <dd class="mt-1 font-medium text-gray-700">
@@ -186,7 +187,7 @@
         <a href="{{ route('industriel.declarations.edit', $d->id) }}"
            class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
            style="background-color:#F97316;">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
             Corriger et resoumettre
@@ -213,7 +214,7 @@
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
             <p class="text-xs text-gray-400 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
                 Consultation uniquement.
@@ -222,7 +223,7 @@
 
         <a href="{{ route('industriel.declarations.index') }}"
            class="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition-colors px-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
             Mes déclarations

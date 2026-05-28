@@ -35,6 +35,14 @@ use Illuminate\Support\Facades\Route;
 // ── Racine : redirige vers /login ───────────────────────────────────────────
 Route::get('/', fn () => redirect()->route('login'));
 
+// ── Page hors-ligne (pré-cachée par le Service Worker) ───────────────────────
+// Accessible sans authentification pour que le SW puisse la récupérer à l'install.
+Route::get('/offline', fn () => view('offline'))->name('offline');
+
+// ── Endpoint CSRF token (utilisé par la synchronisation hors-ligne) ──────────
+// Retourne un token frais pour rejouer les formulaires stockés en IndexedDB.
+Route::get('/csrf-token', fn () => response()->json(['token' => csrf_token()]))->name('csrf-token');
+
 // ── Routes publiques d'authentification ─────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/login',  [AuthController::class, 'showLogin'])->name('login');

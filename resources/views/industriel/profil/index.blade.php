@@ -46,7 +46,7 @@
 
             @if ($utilisateur->telephone)
             <p class="text-sm text-gray-400 mt-1">
-                <svg class="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5 inline -mt-0.5 mr-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
@@ -61,7 +61,7 @@
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                      style="background-color: rgba(26,35,126,0.08);">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="#1a237e" stroke-width="2" viewBox="0 0 24 24">
+                    <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5" fill="none" stroke="#1a237e" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
@@ -98,7 +98,7 @@
             <div class="flex items-center gap-2 mb-4">
                 <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
                      style="background-color: rgba(26,35,126,0.08);">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="#1a237e" stroke-width="2" viewBox="0 0 24 24">
+                    <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5" fill="none" stroke="#1a237e" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
@@ -157,7 +157,7 @@
             {{-- Flash succès --}}
             @if (session('statut'))
             <div class="mx-6 mt-4 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
                 {{ session('statut') }}
@@ -167,7 +167,7 @@
             {{-- Erreurs de validation --}}
             @if ($errors->any())
             <div class="mx-6 mt-4 flex items-start gap-2 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-                <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                 </svg>
@@ -235,10 +235,11 @@
 
                 </div>
 
+                {{-- Bouton pleine largeur sur mobile, auto sur sm+ --}}
                 <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
                         style="background-color: #F97316;">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <svg width="20" height="20" style="flex-shrink:0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                     </svg>
                     Enregistrer les modifications

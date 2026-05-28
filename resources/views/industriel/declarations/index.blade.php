@@ -28,15 +28,16 @@
     };
 @endphp
 
-{{-- ── Bouton nouvelle déclaration ─────────────────────────────────────── --}}
-<div class="mb-5 flex items-center justify-between">
+{{-- ── Bouton nouvelle déclaration — empilé sur mobile, aligné sur sm+ ── --}}
+<div class="mb-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
     <p class="text-sm text-gray-500">
         Vous pouvez soumettre une déclaration pour n'importe quel mois tant que votre agrément est valide.
     </p>
+    {{-- Pleine largeur sur mobile, auto sur sm+ --}}
     <a href="{{ route('industriel.declarations.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 shrink-0"
+       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 sm:shrink-0"
        style="background-color:#F97316;">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg width="20" height="20" style="flex-shrink:0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
         Nouvelle déclaration
@@ -51,9 +52,10 @@
 
     @if ($declarations->isEmpty())
         <div class="py-16 flex flex-col items-center text-center">
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+            {{-- Icône état vide : 24px max --}}
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
                  style="background: rgba(26,35,126,0.07);">
-                <svg class="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>

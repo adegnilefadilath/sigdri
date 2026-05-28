@@ -5,8 +5,8 @@
 
 @section('contenu')
 
-{{-- ── En-tête de page ──────────────────────────────────────────────────────── --}}
-<div class="flex items-center justify-between mb-6">
+{{-- ── En-tête de page — empilé sur mobile, aligné sur sm+ ─────────────────── --}}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
     <div>
         <h2 class="text-lg font-bold text-gray-900">Mes notifications</h2>
         <p class="text-sm text-gray-500 mt-0.5">
@@ -17,10 +17,11 @@
     @if ($nonLues > 0)
     <form method="POST" action="{{ route('industriel.notifications.toutes-lues') }}">
         @csrf
+        {{-- Pleine largeur sur mobile --}}
         <button type="submit"
-                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
                 style="background-color: #1a237e;">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             Tout marquer comme lu
@@ -32,7 +33,7 @@
 {{-- ── Message flash ───────────────────────────────────────────────────────── --}}
 @if (session('statut'))
 <div class="mb-4 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
-    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
     </svg>
     {{ session('statut') }}
@@ -97,7 +98,7 @@
             <button type="submit"
                     title="Marquer comme lue"
                     class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 border border-gray-200 hover:border-blue-300 hover:text-blue-600 transition-colors bg-white">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                 </svg>
                 Lu
@@ -105,7 +106,7 @@
         </form>
         @else
         <span class="shrink-0 mt-1 flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-300">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
             Lu
@@ -118,9 +119,10 @@
 
     {{-- État vide --}}
     <div class="flex flex-col items-center justify-center py-16 text-center">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+        {{-- Icône état vide : 24px max --}}
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
              style="background-color: rgba(26,35,126,0.06);">
-            <svg class="w-8 h-8" fill="none" stroke="#1a237e" stroke-width="1.5" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" fill="none" stroke="#1a237e" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
             </svg>

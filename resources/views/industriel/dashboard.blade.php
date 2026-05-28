@@ -6,141 +6,87 @@
 @section('contenu')
 
 {{-- ═══════════════════════════════════════════════════════════════════════════
-    CARTES STATISTIQUES — 4 cartes
+    CARTES STATISTIQUES
+    2 colonnes sur mobile (375 px), 4 sur desktop.
+    Aucun SVG : texte uniquement pour garantir le rendu sur tous les écrans.
 ════════════════════════════════════════════════════════════════════════════ --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
-    {{-- Carte 1 : Déclarations soumises (bleu) --}}
-    <div class="relative rounded-2xl p-5 text-white overflow-hidden"
+    {{-- Carte 1 : Déclarations (bleu nuit) --}}
+    <div class="rounded-xl p-4 text-white"
          style="background: linear-gradient(135deg, #1a237e 0%, #283593 100%);">
-        <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.08);"></div>
-        <div class="flex items-start justify-between relative z-10">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
-                    Mes déclarations
-                </p>
-                <p class="text-4xl font-black mt-1 leading-none">{{ $totalDeclarations }}</p>
-                <p class="text-xs mt-2 opacity-75">
-                    <span class="font-semibold text-yellow-300">
-                        {{ $declarationsParStatut['soumise'] ?? 0 }}
-                    </span>
-                    en attente · <span class="font-semibold text-green-300">
-                        {{ $declarationsParStatut['validee'] ?? 0 }}
-                    </span>
-                    validée(s)
-                </p>
-            </div>
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                 style="background: rgba(255,255,255,0.15);">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-            </div>
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Déclarations
+        </p>
+        <p class="text-3xl font-black mt-1 leading-none">{{ $totalDeclarations }}</p>
+        <p class="text-xs mt-2 opacity-70">
+            {{ $declarationsParStatut['soumise'] ?? 0 }} en attente
+            &middot; {{ $declarationsParStatut['validee'] ?? 0 }} validée(s)
+        </p>
     </div>
 
-    {{-- Carte 2 : Statut de l'agrément --}}
+    {{-- Carte 2 : Agrément — couleur dépend du statut --}}
     @php
-        // Couleurs et libellés selon le statut de l'agrément
-        $statutAgrement = $agrement->statut ?? 'aucun';
+        // Dégradé et libellé selon le statut de l'agrément
+        $statutAgrement  = $agrement->statut ?? 'aucun';
         $couleurAgrement = match($statutAgrement) {
-            'valide'    => ['135deg, #059669 0%, #047857 100%', 'Valide', 'text-green-200'],
-            'expire'    => ['135deg, #dc2626 0%, #b91c1c 100%', 'Expiré', 'text-red-200'],
-            'suspendu'  => ['135deg, #d97706 0%, #b45309 100%', 'Suspendu', 'text-yellow-200'],
-            'revoque'   => ['135deg, #7c3aed 0%, #6d28d9 100%', 'Révoqué', 'text-purple-200'],
-            default     => ['135deg, #6b7280 0%, #4b5563 100%', 'Non renseigné', 'text-gray-200'],
+            'valide'   => ['135deg, #059669 0%, #047857 100%', 'Valide'],
+            'expire'   => ['135deg, #dc2626 0%, #b91c1c 100%', 'Expiré'],
+            'suspendu' => ['135deg, #d97706 0%, #b45309 100%', 'Suspendu'],
+            'revoque'  => ['135deg, #7c3aed 0%, #6d28d9 100%', 'Révoqué'],
+            default    => ['135deg, #6b7280 0%, #4b5563 100%', '—'],
         };
     @endphp
-    <div class="relative rounded-2xl p-5 text-white overflow-hidden"
+    <div class="rounded-xl p-4 text-white"
          style="background: linear-gradient({{ $couleurAgrement[0] }});">
-        <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.08);"></div>
-        <div class="flex items-start justify-between relative z-10">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Mon agrément</p>
-                <p class="text-2xl font-black mt-1 leading-tight">{{ $couleurAgrement[1] }}</p>
-                @if ($agrement)
-                    <p class="text-xs mt-2 opacity-75">
-                        N° {{ $agrement->numero_agrement }}
-                    </p>
-                    @if ($agrement->date_expiration)
-                        <p class="text-xs {{ $couleurAgrement[2] }}">
-                            Exp. {{ \Carbon\Carbon::parse($agrement->date_expiration)->format('d/m/Y') }}
-                        </p>
-                    @endif
-                @else
-                    <p class="text-xs mt-2 opacity-60">Aucun agrément enregistré</p>
-                @endif
-            </div>
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                 style="background: rgba(255,255,255,0.15);">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-            </div>
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Agrément
+        </p>
+        <p class="text-xl font-black mt-1 leading-tight">{{ $couleurAgrement[1] }}</p>
+        @if ($agrement)
+            <p class="text-xs mt-2 opacity-70 truncate">
+                N°&nbsp;{{ $agrement->numero_agrement }}
+            </p>
+            @if ($agrement->date_expiration)
+                <p class="text-xs opacity-60">
+                    Exp.&nbsp;{{ \Carbon\Carbon::parse($agrement->date_expiration)->format('d/m/Y') }}
+                </p>
+            @endif
+        @else
+            <p class="text-xs mt-2 opacity-60">Non renseigné</p>
+        @endif
     </div>
 
-    {{-- Carte 3 : Période déclarative en cours (orange) --}}
-    <div class="relative rounded-2xl p-5 text-white overflow-hidden"
+    {{-- Carte 3 : Période déclarative (orange) --}}
+    <div class="rounded-xl p-4 text-white"
          style="background: linear-gradient(135deg, #F97316 0%, #ea580c 100%);">
-        <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.08);"></div>
-        <div class="flex items-start justify-between relative z-10">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
-                    Période en cours
-                </p>
-                @if ($periodeCourante)
-                    <p class="text-lg font-black mt-1 leading-tight">
-                        {{ ucfirst($periodeCourante->type) }} {{ $periodeCourante->annee }}
-                    </p>
-                    <p class="text-xs mt-2 opacity-75">
-                        Du {{ \Carbon\Carbon::parse($periodeCourante->date_debut)->format('d/m') }}
-                        au {{ \Carbon\Carbon::parse($periodeCourante->date_fin)->format('d/m/Y') }}
-                    </p>
-                    <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold bg-white/20">
-                        Ouverte
-                    </span>
-                @else
-                    <p class="text-lg font-black mt-1">Aucune</p>
-                    <p class="text-xs mt-2 opacity-75">Pas de période ouverte</p>
-                @endif
-            </div>
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                 style="background: rgba(255,255,255,0.15);">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-            </div>
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Période
+        </p>
+        @if ($periodeCourante)
+            <p class="text-lg font-black mt-1 leading-tight">
+                {{ ucfirst($periodeCourante->type) }}&nbsp;{{ $periodeCourante->annee }}
+            </p>
+            <p class="text-xs mt-2 opacity-70">
+                {{ \Carbon\Carbon::parse($periodeCourante->date_debut)->format('d/m') }}
+                → {{ \Carbon\Carbon::parse($periodeCourante->date_fin)->format('d/m/Y') }}
+            </p>
+            <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                  style="background: rgba(255,255,255,0.2);">Ouverte</span>
+        @else
+            <p class="text-xl font-black mt-1">Aucune</p>
+            <p class="text-xs mt-2 opacity-70">Pas de période ouverte</p>
+        @endif
     </div>
 
-    {{-- Carte 4 : Produits déclarés (gris foncé) --}}
-    <div class="relative rounded-2xl p-5 text-white overflow-hidden"
+    {{-- Carte 4 : Produits enregistrés (gris foncé) --}}
+    <div class="rounded-xl p-4 text-white"
          style="background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
-        <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full"
-             style="background: rgba(255,255,255,0.08);"></div>
-        <div class="flex items-start justify-between relative z-10">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
-                    Mes produits
-                </p>
-                <p class="text-4xl font-black mt-1 leading-none">{{ $totalProduits }}</p>
-                <p class="text-xs mt-2 opacity-75">Produits enregistrés</p>
-            </div>
-            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                 style="background: rgba(255,255,255,0.15);">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-            </div>
-        </div>
+        <p class="text-xs font-semibold uppercase tracking-wider opacity-80">
+            Produits
+        </p>
+        <p class="text-3xl font-black mt-1 leading-none">{{ $totalProduits }}</p>
+        <p class="text-xs mt-2 opacity-70">Produits enregistrés</p>
     </div>
 
 </div>{{-- /cartes --}}
@@ -153,7 +99,7 @@
     {{-- Panneau : Dernière déclaration --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
         <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
@@ -210,22 +156,24 @@
                 @endif
             </dl>
             <div class="mt-4">
-                <a href="#"
+                {{-- Lien vers la liste complète des déclarations --}}
+                <a href="{{ route('industriel.declarations.index') }}"
                    class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
                    style="background-color: rgba(249,115,22,0.1); color: #F97316;">
                     Voir toutes mes déclarations →
                 </a>
             </div>
         @else
-            {{-- État vide --}}
+            {{-- État vide : icône max 24px pour ne pas déborder sur mobile --}}
             <div class="flex flex-col items-center justify-center py-8 text-center">
-                <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
                 <p class="text-sm text-gray-400">Aucune déclaration pour l'instant.</p>
-                <a href="#"
-                   class="mt-3 inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl text-white transition-colors"
+                {{-- Bouton pleine largeur sur mobile --}}
+                <a href="{{ route('industriel.declarations.create') }}"
+                   class="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl text-white transition-colors"
                    style="background-color: #F97316;">
                     + Créer ma première déclaration
                 </a>
@@ -236,7 +184,7 @@
     {{-- Panneau : Fiche de l'unité industrielle --}}
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
         <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <svg width="20" height="20" style="flex-shrink:0" class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                       d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
@@ -291,8 +239,9 @@
                 </div>
             </dl>
         @else
+            {{-- État vide : icône 24px max --}}
             <div class="flex flex-col items-center justify-center py-8 text-center">
-                <svg class="w-10 h-10 text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg width="20" height="20" style="flex-shrink:0" class="text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
                 </svg>

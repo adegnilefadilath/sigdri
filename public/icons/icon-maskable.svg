@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Maskable : fond plein bord à bord (pas de border-radius) -->
+  <!-- Zone sûre = cercle central de ~57% du total, soit rayon ~146px -->
+  <rect width="512" height="512" fill="#1a237e"/>
+  <!-- Icône centrée dans la safe zone -->
+  <g transform="translate(100, 90)" stroke="#F97316" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="20" y="150" width="272" height="175" rx="4"/>
+    <polyline points="6,150 156,22 306,150"/>
+    <rect x="42" y="190" width="56" height="50" rx="4"/>
+    <rect x="214" y="190" width="56" height="50" rx="4"/>
+    <rect x="122" y="210" width="68" height="115" rx="4"/>
+    <rect x="228" y="44" width="32" height="106" rx="4"/>
+    <path d="M231,40 C231,22 258,22 258,40" stroke-width="10"/>
+  </g>
+  <text x="256" y="430" font-family="Arial Black, Arial, sans-serif" font-size="46" font-weight="900"
+        text-anchor="middle" fill="#F97316" letter-spacing="5">SIGDRI</text>
+  <text x="256" y="475" font-family="Arial, sans-serif" font-size="20" font-weight="400"
+        text-anchor="middle" fill="rgba(255,255,255,0.5)">Espace Industriel</text>
+</svg>
